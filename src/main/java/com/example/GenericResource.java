@@ -1,5 +1,8 @@
 package com.example;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Random;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.Produces;
 import javax.ws.rs.GET;
@@ -29,11 +32,11 @@ public class GenericResource {
     @GET
     @Path("prices")
     @Produces(MediaType.SERVER_SENT_EVENTS)
-    public void getStockPrices(@Context SseEventSink sseEventSink /*..*/) {
+    public void getStockPrices(@Context SseEventSink sseEventSink) {
         int lastEventId = 1;
 
         while (running) {
-            Stock stock = new Stock(); //  stockService.getNextTransaction(lastEventId);
+            Stock stock = getNextTransaction();
             // if (stock != null) {
             System.out.println("Send event ...");
             OutboundSseEvent sseEvent = this.eventBuilder
@@ -46,14 +49,23 @@ public class GenericResource {
                     .build();
             sseEventSink.send(sseEvent);
             lastEventId++;
-
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException ex) {
-                Thread.currentThread().interrupt();
-            }
         }
         sseEventSink.close();
+    }
+
+    private Stock getNextTransaction() {
+        Random r = new Random();
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
+
+        BigDecimal price = BigDecimal.TEN.add(BigDecimal.valueOf(r.nextGaussian()));
+        LocalDateTime now = LocalDateTime.now();
+
+        return new Stock("TEST", price, now);
     }
 
 }
