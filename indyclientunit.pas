@@ -73,7 +73,7 @@ begin
   WriteLn(IndyTextEncoding_UTF8.GetString(Chunk));
 
   Inc(ChunkCount);
-  if ChunkCount > 3 then begin
+  if ChunkCount > 2 then begin
     WriteLn('Closing connection');
     IdHTTP.Disconnect;
   end;
