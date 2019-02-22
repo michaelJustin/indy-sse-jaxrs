@@ -6,5 +6,7 @@ uses
 
 begin
   RunTest;
+  WriteLn('Hit any key ...');
+  ReadLn;
 end.
 

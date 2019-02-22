@@ -4,42 +4,77 @@ unit IndyClientUnit;
 
 interface
 
-uses
-  Classes, SysUtils;
-
 procedure RunTest;
 
 implementation
 
 uses
-  IdHTTP;
+  IdHTTP, IdGlobal, SysUtils;
+
+type
+
+  { TIndySSEClient }
+
+  TIndySSEClient = class(TObject)
+  private
+    IdHTTP: TIdHTTP;
+  protected
+    procedure MyChunkReceived(Sender : TObject; var Chunk: TIdBytes);
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Run;
+  end;
 
 procedure RunTest;
 var
-  IdHTTP: TIdHTTP;
-  Response: string;
+  Client: TIndySSEClient;
 begin
-  IdHTTP := TIdHTTP.Create;
+  Client := TIndySSEClient.Create;
   try
-    IdHTTP.HTTPOptions := IdHTTP.HTTPOptions
-      + [hoNoProtocolErrorException, hoWantProtocolErrorContent];
-    try
-      Response := IdHTTP.Get('http://localhost:8080/indy-sse-jaxrs/api/generic/prices');
-
-      WriteLn(Response);
-    except
-      on E: Exception do begin
-        WriteLn(E.Message);
-      end;
-    end;
+    Client.Run;
   finally
-    IdHTTP.Free;
+    Client.Free;
   end;
+end;
 
-  WriteLn('Hit any key ...');
-  ReadLn;
+{ TIndySSEClient }
 
+constructor TIndySSEClient.Create;
+begin
+  inherited;
 
+  IdHTTP := TIdHTTP.Create;
+  IdHTTP.HTTPOptions := IdHTTP.HTTPOptions
+    + [hoNoProtocolErrorException, hoWantProtocolErrorContent];
+  IdHTTP.OnChunkReceived := MyChunkReceived;
+end;
+
+destructor TIndySSEClient.Destroy;
+begin
+  inherited;
+
+  IdHTTP.Free;
+end;
+
+procedure TIndySSEClient.Run;
+var
+  Stream: TIdEventStream;
+begin
+  Stream := TIdEventStream.Create;
+
+  try
+    IdHTTP.Get('http://localhost:8080/indy-sse-jaxrs/api/generic/prices', Stream);
+  except
+    on E: Exception do begin
+      WriteLn(E.Message);
+    end;
+  end;
+end;
+
+procedure TIndySSEClient.MyChunkReceived(Sender: TObject; var Chunk: TIdBytes);
+begin
+  WriteLn(IndyTextEncoding_UTF8.GetString(Chunk));
 end;
 
 end.

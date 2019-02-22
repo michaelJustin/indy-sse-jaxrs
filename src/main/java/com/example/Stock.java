@@ -5,7 +5,7 @@ public class Stock {
     private String code;
 
     public Stock() {
-        this.code = "abc";
+        this.code = "abc äöü ÄÖÜ";
     }
 
     public String getCode() {
