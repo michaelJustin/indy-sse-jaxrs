@@ -1,0 +1,4 @@
+lib/
+target/
+backup/
+*.lps
