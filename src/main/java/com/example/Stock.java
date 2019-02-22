@@ -1,21 +1,30 @@
 package com.example;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 public class Stock {
     
-    private String code;
+    private final String code;
+    private final BigDecimal price;
+    private final LocalDateTime dateTime;
 
-    public Stock() {
-        this.code = "abc äöü ÄÖÜ";
+    public Stock(String code, BigDecimal price, LocalDateTime dateTime) {
+        this.code = code;
+        this.price = price;
+        this.dateTime = dateTime; 
+    }
+    
+    public BigDecimal getPrice() {
+        return price;
     }
 
+    public LocalDateTime getDateTime() {
+        return dateTime;
+    }
+  
     public String getCode() {
         return code;
     }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-    
-    
     
 }

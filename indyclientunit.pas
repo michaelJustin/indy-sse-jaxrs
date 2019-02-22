@@ -65,7 +65,7 @@ end;
 
 procedure TIndySSEClient.Run;
 begin
-  IdHTTP.Get(URL {, Stream});
+  IdHTTP.Get(SSE_URL {, Stream});
 end;
 
 procedure TIndySSEClient.MyChunkReceived(Sender: TObject; var Chunk: TIdBytes);
@@ -73,7 +73,7 @@ begin
   WriteLn(IndyTextEncoding_UTF8.GetString(Chunk));
 
   Inc(ChunkCount);
-  if ChunkCount > 4 then begin
+  if ChunkCount > 2 then begin
     WriteLn('Closing connection');
     IdHTTP.Disconnect;
   end;
