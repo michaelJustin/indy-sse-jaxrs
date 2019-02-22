@@ -28,3 +28,4 @@ target/
 backup/
 *.lps
 >>>>>>> release/0.1
+nb-configuration.xml
