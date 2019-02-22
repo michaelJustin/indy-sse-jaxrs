@@ -13,9 +13,9 @@ import javax.ws.rs.sse.SseBroadcaster;
 @Path("generic")
 public class GenericResource {
 
-    Sse sse;
-    OutboundSseEvent.Builder eventBuilder;
-    SseBroadcaster sseBroadcaster;
+    private Sse sse;
+    private OutboundSseEvent.Builder eventBuilder;
+    private SseBroadcaster sseBroadcaster;
 
     @Context
     public void setSse(Sse sse) {
@@ -23,7 +23,7 @@ public class GenericResource {
         this.eventBuilder = sse.newEventBuilder();
         this.sseBroadcaster = sse.newBroadcaster();
     }
-    
+
     private boolean running = true;
 
     @GET
@@ -31,22 +31,22 @@ public class GenericResource {
     @Produces(MediaType.SERVER_SENT_EVENTS)
     public void getStockPrices(@Context SseEventSink sseEventSink /*..*/) {
         int lastEventId = 1;
-        
+
         while (running) {
             Stock stock = new Stock(); //  stockService.getNextTransaction(lastEventId);
             // if (stock != null) {
             System.out.println("Send event ...");
-                OutboundSseEvent sseEvent = this.eventBuilder
-                        .name("stock")
-                        .id(String.valueOf(lastEventId))
-                        .mediaType(MediaType.APPLICATION_JSON_TYPE)
-                        .data(Stock.class, stock)
-                        .reconnectDelay(3000)
-                        .comment("price change")
-                        .build();
-                sseEventSink.send(sseEvent);
-                lastEventId++;
-                
+            OutboundSseEvent sseEvent = this.eventBuilder
+                    .name("stock")
+                    .id(String.valueOf(lastEventId))
+                    .mediaType(MediaType.APPLICATION_JSON_TYPE)
+                    .data(Stock.class, stock)
+                    .reconnectDelay(3000)
+                    .comment("price change")
+                    .build();
+            sseEventSink.send(sseEvent);
+            lastEventId++;
+
             try {
                 Thread.sleep(3000);
             } catch (InterruptedException ex) {

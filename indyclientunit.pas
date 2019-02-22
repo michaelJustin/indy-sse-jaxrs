@@ -8,16 +8,19 @@ procedure RunTest;
 
 implementation
 
+// see https://www.indyproject.org/2016/01/10/new-tidhttp-flags-and-onchunkreceived-event/
+
 uses
   IdHTTP, IdGlobal, SysUtils;
 
+const
+  SSE_URL = 'http://localhost:8080/indy-sse-jaxrs/api/generic/prices';
+
 type
-
-  { TIndySSEClient }
-
   TIndySSEClient = class(TObject)
   private
     IdHTTP: TIdHTTP;
+    ChunkCount: Integer;
   protected
     procedure MyChunkReceived(Sender : TObject; var Chunk: TIdBytes);
   public
@@ -32,7 +35,12 @@ var
 begin
   Client := TIndySSEClient.Create;
   try
-    Client.Run;
+    try
+      Client.Run;
+    except
+      on E: Exception do
+        WriteLn(E.Message);
+    end;
   finally
     Client.Free;
   end;
@@ -45,36 +53,30 @@ begin
   inherited;
 
   IdHTTP := TIdHTTP.Create;
-  IdHTTP.HTTPOptions := IdHTTP.HTTPOptions
-    + [hoNoProtocolErrorException, hoWantProtocolErrorContent];
   IdHTTP.OnChunkReceived := MyChunkReceived;
 end;
 
 destructor TIndySSEClient.Destroy;
 begin
-  inherited;
-
   IdHTTP.Free;
+
+  inherited;
 end;
 
 procedure TIndySSEClient.Run;
-var
-  Stream: TIdEventStream;
 begin
-  Stream := TIdEventStream.Create;
-
-  try
-    IdHTTP.Get('http://localhost:8080/indy-sse-jaxrs/api/generic/prices', Stream);
-  except
-    on E: Exception do begin
-      WriteLn(E.Message);
-    end;
-  end;
+  IdHTTP.Get(URL {, Stream});
 end;
 
 procedure TIndySSEClient.MyChunkReceived(Sender: TObject; var Chunk: TIdBytes);
 begin
   WriteLn(IndyTextEncoding_UTF8.GetString(Chunk));
+
+  Inc(ChunkCount);
+  if ChunkCount > 4 then begin
+    WriteLn('Closing connection');
+    IdHTTP.Disconnect;
+  end;
 end;
 
 end.
