@@ -21,3 +21,5 @@ lib/
 target/
 backup/
 *.lps
+nbactions.xml
+nb-configuration.xml
