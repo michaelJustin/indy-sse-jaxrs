@@ -29,29 +29,29 @@ public class GenericResource {
 
     private boolean running = true;
 
-    @GET
-    @Path("prices")
-    @Produces(MediaType.SERVER_SENT_EVENTS)
-    public void getStockPrices(@Context SseEventSink sseEventSink) {
-        int lastEventId = 1;
+  @GET
+  @Path("prices")
+  @Produces(MediaType.SERVER_SENT_EVENTS)
+  public void getStockPrices(@Context SseEventSink sseEventSink) {
+    int lastEventId = 1;
 
-        while (running) {
-            Stock stock = getNextTransaction();
-            // if (stock != null) {
-            System.out.println("Send event ...");
-            OutboundSseEvent sseEvent = this.eventBuilder
-                    .name("stock")
-                    .id(String.valueOf(lastEventId))
-                    .mediaType(MediaType.APPLICATION_JSON_TYPE)
-                    .data(Stock.class, stock)
-                    .reconnectDelay(3000)
-                    .comment("price change")
-                    .build();
-            sseEventSink.send(sseEvent);
-            lastEventId++;
-        }
-        sseEventSink.close();
+    while (running) {
+      Stock stock = getNextTransaction();
+      // if (stock != null) {
+      System.out.println("Send event ...");
+      OutboundSseEvent sseEvent = this.eventBuilder
+              .name("stock")
+              .id(String.valueOf(lastEventId))
+              .mediaType(MediaType.APPLICATION_JSON_TYPE)
+              .data(Stock.class, stock)
+              .reconnectDelay(3000)
+              .comment("price change")
+              .build();
+      sseEventSink.send(sseEvent);
+      lastEventId++;
     }
+    sseEventSink.close();
+  }
 
     private Stock getNextTransaction() {
         Random r = new Random();

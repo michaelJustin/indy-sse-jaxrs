@@ -54,6 +54,8 @@ begin
 
   IdHTTP := TIdHTTP.Create;
   IdHTTP.OnChunkReceived := MyChunkReceived;
+
+  WriteLn(SSE_URL);
 end;
 
 destructor TIndySSEClient.Destroy;
