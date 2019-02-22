@@ -35,6 +35,7 @@ public class GenericResource {
         while (running) {
             Stock stock = new Stock(); //  stockService.getNextTransaction(lastEventId);
             // if (stock != null) {
+            System.out.println("Send event ...");
                 OutboundSseEvent sseEvent = this.eventBuilder
                         .name("stock")
                         .id(String.valueOf(lastEventId))
