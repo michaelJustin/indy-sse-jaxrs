@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <div id="result"></div>
+
+        <script>
+            var source = new EventSource("/indy-sse-jaxrs/api/generic/prices");
+            source.onmessage = function (event) {
+                document.getElementById("result").innerHTML += event.data + "<br>";
+                console.log(event.data);
+            };
+        </script>
+    </body>
+
+</html>
