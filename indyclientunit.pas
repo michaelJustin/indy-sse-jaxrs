@@ -1,31 +1,37 @@
 unit IndyClientUnit;
 
-{$mode delphi}
+{$I IdCompilerDefines.inc}
 
 interface
 
-procedure RunTest;
+procedure RunTest(URL: string);
 
 implementation
 
-// see https://www.indyproject.org/2016/01/10/new-tidhttp-flags-and-onchunkreceived-event/
+// see
+// https://www.indyproject.org/2016/01/10/new-tidhttp-flags-and-onchunkreceived-event/
+// https://www.html5rocks.com/en/tutorials/eventsource/basics/
 
 uses
   IdHTTP, IdGlobal, SysUtils;
 
-const
-  SSE_URL = 'http://localhost:8080/indy-sse-jaxrs/api/generic/prices';
-
 type
+
+  { TIndySSEClient }
+
   TIndySSEClient = class(TObject)
   private
+    EventStream: TIdEventStream;
     IdHTTP: TIdHTTP;
     ChunkCount: Integer;
+    SSE_URL: string;
   protected
-    procedure MyChunkReceived(Sender : TObject; var Chunk: TIdBytes);
+    procedure MyOnWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint; var VResult: Longint);
+
   public
-    constructor Create;
+    constructor Create(const URL: string);
     destructor Destroy; override;
+
     procedure Run;
   end;
 
@@ -33,7 +39,9 @@ procedure RunTest;
 var
   Client: TIndySSEClient;
 begin
-  Client := TIndySSEClient.Create;
+  WriteLn('URL for Server-sent events: ' + URL);
+
+  Client := TIndySSEClient.Create(URL);
   try
     try
       Client.Run;
@@ -50,29 +58,35 @@ end;
 
 constructor TIndySSEClient.Create;
 begin
-  inherited;
+  inherited Create;
+
+  SSE_URL := URL;
+
+  EventStream := TIdEventStream.Create;
+  EventStream.OnWrite := MyOnWrite;
 
   IdHTTP := TIdHTTP.Create;
-  IdHTTP.OnChunkReceived := MyChunkReceived;
-
-  WriteLn(SSE_URL);
+  IdHTTP.Request.Accept := 'text/event-stream';
 end;
 
 destructor TIndySSEClient.Destroy;
 begin
   IdHTTP.Free;
+  EventStream.Free;
 
   inherited;
 end;
 
 procedure TIndySSEClient.Run;
 begin
-  IdHTTP.Get(SSE_URL {, Stream});
+  IdHTTP.Get(SSE_URL, EventStream);
 end;
 
-procedure TIndySSEClient.MyChunkReceived(Sender: TObject; var Chunk: TIdBytes);
+procedure TIndySSEClient.MyOnWrite;
 begin
-  WriteLn(IndyTextEncoding_UTF8.GetString(Chunk));
+  WriteLn('Received ' + IntToStr(Length(ABuffer)) + ' bytes');
+  WriteLn;
+  WriteLn(IndyTextEncoding_UTF8.GetString(ABuffer));
 
   Inc(ChunkCount);
   if ChunkCount > 2 then begin
