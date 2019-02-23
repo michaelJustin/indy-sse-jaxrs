@@ -5,7 +5,7 @@ uses
   IndyClientUnit;
 
 begin
-  RunTest;
+  RunTest('http://localhost:8080/indy-sse-jaxrs/api/generic/prices');
   WriteLn('Hit any key ...');
   ReadLn;
 end.
