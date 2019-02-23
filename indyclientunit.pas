@@ -67,6 +67,7 @@ begin
 
   IdHTTP := TIdHTTP.Create;
   IdHTTP.Request.Accept := 'text/event-stream';
+  IdHTTP.Request.CacheControl := 'no-store';
 end;
 
 destructor TIndySSEClient.Destroy;
