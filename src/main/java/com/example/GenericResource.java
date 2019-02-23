@@ -13,6 +13,8 @@ import javax.ws.rs.sse.OutboundSseEvent;
 import javax.ws.rs.sse.Sse;
 import javax.ws.rs.sse.SseBroadcaster;
 
+// see https://www.html5rocks.com/en/tutorials/eventsource/basics/
+
 @Path("generic")
 public class GenericResource {
 
