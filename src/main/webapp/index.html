@@ -9,11 +9,27 @@
         <div id="result"></div>
 
         <script>
-            var source = new EventSource("/indy-sse-jaxrs/api/generic/prices");
-            source.onmessage = function (event) {
-                document.getElementById("result").innerHTML += event.data + "<br>";
-                console.log(event.data);
-            };
+            if (!!window.EventSource) {
+                var source = new EventSource("http://localhost:8080/indy-sse-jaxrs/api/generic/prices");
+                
+                source.addEventListener('stock', function (e) {
+                    var data = JSON.parse(e.data);
+                    document.getElementById("result").innerHTML
+                            += 'Code: ' + data.code + '<br>DateTime: ' + data.dateTime + '<br>Price: ' + data.price + "<br><br>";
+                }, false);
+
+                source.addEventListener('open', function (e) {
+                    // Connection was opened.
+                    console.log('open');
+                }, false);
+
+                source.addEventListener('error', function (e) {
+                    if (e.readyState === EventSource.CLOSED) {
+                        // Connection was closed.
+                        console.log('closed');
+                    }
+                }, false);
+            }
         </script>
     </body>
 
